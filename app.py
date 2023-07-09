@@ -1,7 +1,39 @@
 import streamlit as st
 import time
 
+import langchain
+import os
+import sys
+
+# Vertex AI
+from google.cloud import aiplatform
+# from langchain.chat_models import ChatVertexAI
+# from langchain.embeddings import VertexAIEmbeddings
+from langchain.llms import VertexAI
+
+print(f"LangChain version: {langchain.__version__}")
+print(f"Vertex AI SDK version: {aiplatform.__version__}")
+
+if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
+    print("GOOGLE_APPLICATION_CREDENTIALS is available")
+else:
+    print("Please set the GOOGLE_APPLICATION_CREDENTIALS env variable.")
+    sys.exit("No Credentails file available")
+
 st.set_page_config(page_title="Financial Chatbot Experiment", layout="wide")
+
+demo_data = [
+    {"title": "Alphabet Q1 2023 10-Q", "path": "./data/20230426-alphabet-10q.pdf"}
+]
+
+llm = VertexAI(
+    model_name="text-bison",
+    max_output_tokens=256,
+    temperature=0.1,
+    top_p=0.8,
+    top_k=40,
+    verbose=True,
+)
 
 # Default welcome message from bot
 default_message = {
@@ -18,8 +50,10 @@ st.session_state.setdefault("queries", [])
 st.session_state.setdefault("replies", [])
 
 
-def bot_process():
-    return "Hello there!"
+def ask_bot(query):
+    clean_query = query
+    response = llm(clean_query)
+    return response
 
 
 def process_file():
@@ -39,7 +73,7 @@ def on_input_change():
         }
     )
 
-    response = bot_process()
+    response = ask_bot(user_input)
 
     st.session_state.replies.append(
         {
@@ -51,8 +85,6 @@ def on_input_change():
 
 
 with st.sidebar:
-    # llm_api_key = st.text_input(
-    #    "LLM API Key", key="chatbot_api_key", type="password")
 
     uploaded_file = st.file_uploader("Upload Document")
     if uploaded_file is not None:
