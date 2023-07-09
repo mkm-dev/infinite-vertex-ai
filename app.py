@@ -19,6 +19,8 @@ st.set_page_config(page_title="Financial Chatbot Experiment", layout="wide")
 demo_data = [
     {"title": "Alphabet Q1 2023 10-Q", "path": "#"}
 ]
+# Change it to your project id
+aiplatform.init(project="vertex-ai-try")
 
 llm = VertexAI(
     model_name="text-bison@001",

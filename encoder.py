@@ -26,6 +26,8 @@ demo_data = [
     {"title": "Alphabet Q1 2023 10-Q", "path": "./data/20230426-alphabet-10q.pdf"}
 ]
 
+# Change it to your project id
+aiplatform.init(project="vertex-ai-try")
 
 llm = VertexAI(
     model_name="text-bison@001",
