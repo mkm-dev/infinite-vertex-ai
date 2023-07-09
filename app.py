@@ -14,20 +14,14 @@ from langchain.llms import VertexAI
 print(f"LangChain version: {langchain.__version__}")
 print(f"Vertex AI SDK version: {aiplatform.__version__}")
 
-if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
-    print("GOOGLE_APPLICATION_CREDENTIALS is available")
-else:
-    print("Please set the GOOGLE_APPLICATION_CREDENTIALS env variable.")
-    sys.exit("No Credentails file available")
-
 st.set_page_config(page_title="Financial Chatbot Experiment", layout="wide")
 
 demo_data = [
-    {"title": "Alphabet Q1 2023 10-Q", "path": "./data/20230426-alphabet-10q.pdf"}
+    {"title": "Alphabet Q1 2023 10-Q", "path": "#"}
 ]
 
 llm = VertexAI(
-    model_name="text-bison",
+    model_name="text-bison@001",
     max_output_tokens=256,
     temperature=0.1,
     top_p=0.8,
