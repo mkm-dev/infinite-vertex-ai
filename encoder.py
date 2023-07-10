@@ -25,7 +25,7 @@ print(f"LangChain version: {langchain.__version__}")
 print(f"Vertex AI SDK version: {aiplatform.__version__}")
 
 demo_data = [
-    {"title": "Alphabet Q1 2023 10-Q", "path": "./data/20230426-alphabet-10q.pdf"}
+    # {"title": "Alphabet Q1 2023 10-Q", "path": "./data/20230426-alphabet-10q.pdf"}
     {"title": "Apple 10-K", "path": "./data/Apple-10K.pdf"}
 ]
 
