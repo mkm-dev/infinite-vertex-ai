@@ -30,7 +30,7 @@ demo_data = [
 ]
 
 # Change it to your project id
-aiplatform.init(project="vertex-ai-try")
+aiplatform.init(project="<Add your GCP Project ID>")
 
 llm = VertexAI(
     model_name="text-bison@001",
@@ -120,7 +120,7 @@ else:
     # print(docs[0])
 
     db = Chroma.from_documents(
-        docs[:30], embeddings, persist_directory=CHROMADB_PATH)
+        docs[:50], embeddings, persist_directory=CHROMADB_PATH)
     db.persist()
 
 retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": 2})

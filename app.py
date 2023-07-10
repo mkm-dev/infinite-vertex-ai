@@ -26,7 +26,7 @@ demo_data = [
     {"title": "Apple 10-K", "link": "#"}
 ]
 # Change it to your project id
-aiplatform.init(project="vertex-ai-try")
+aiplatform.init(project="<Add your GCP Project ID>")
 
 llm = VertexAI(
     model_name="text-bison@001",
