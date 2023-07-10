@@ -3,36 +3,59 @@ import time
 
 import langchain
 import os
-import sys
 
 # Vertex AI
 from google.cloud import aiplatform
 # from langchain.chat_models import ChatVertexAI
-# from langchain.embeddings import VertexAIEmbeddings
+from langchain.embeddings import VertexAIEmbeddings
 from langchain.llms import VertexAI
+
+# Vector Store
+from langchain.vectorstores import Chroma
+
+# Q&A
+from langchain.chains import RetrievalQA
 
 print(f"LangChain version: {langchain.__version__}")
 print(f"Vertex AI SDK version: {aiplatform.__version__}")
 
-if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
-    print("GOOGLE_APPLICATION_CREDENTIALS is available")
-else:
-    print("Please set the GOOGLE_APPLICATION_CREDENTIALS env variable.")
-    sys.exit("No Credentails file available")
-
-st.set_page_config(page_title="Financial Chatbot Experiment", layout="wide")
+st.set_page_config(
+    page_title="Infinite AI: Financial Chatbot Experiment", layout="wide")
 
 demo_data = [
-    {"title": "Alphabet Q1 2023 10-Q", "path": "./data/20230426-alphabet-10q.pdf"}
+    {"title": "Alphabet Q1 2023 10-Q", "link": "#"}
 ]
+# Change it to your project id
+aiplatform.init(project="vertex-ai-try")
 
 llm = VertexAI(
-    model_name="text-bison",
+    model_name="text-bison@001",
     max_output_tokens=256,
     temperature=0.1,
     top_p=0.8,
     top_k=40,
     verbose=True,
+)
+
+# Embedding
+embeddings = VertexAIEmbeddings()
+
+# Chroma DB
+# If db is already there load from files else error no db files present
+if os.path.exists(".chromadb/chroma-embeddings.parquet"):
+    db = Chroma(persist_directory=".chromadb/",
+                embedding_function=embeddings)
+    print("Loading db from files")
+else:
+    print("No DB Files Present, create embeddings first")
+
+retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": 2})
+
+qa = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff",
+    retriever=retriever,
+    return_source_documents=True
 )
 
 # Default welcome message from bot
@@ -49,16 +72,15 @@ st.session_state.setdefault("queries", [])
 # To store llm output
 st.session_state.setdefault("replies", [])
 
+st.session_state.setdefault("usedb", True)
+
 
 def ask_bot(query):
     clean_query = query
-    response = llm(clean_query)
+    # response = llm(clean_query)
+    output = qa({"query": clean_query})
+    response = output["result"]
     return response
-
-
-def process_file():
-    # Handle file
-    pass
 
 
 def on_input_change():
@@ -85,12 +107,18 @@ def on_input_change():
 
 
 with st.sidebar:
+    st.header("Infinite AI")
+    st.subheader("Financial Chatbot Experiment")
 
-    uploaded_file = st.file_uploader("Upload Document")
-    if uploaded_file is not None:
-        process_file()
+    st.info(
+        """In this demo you can experience the Generative AI features of Vertex AI.""")
 
-st.write("### Financial ChatBot Experiment")
+    with st.container():
+        """
+        We are using Vertex AI to perform some Q&A on Alphabet Q1 2023 10-Q PDF using the text bison LLM.
+        """
+
+# st.write("### Infinite AI: Financial Chatbot Experiment")
 
 c1 = st.container()
 
