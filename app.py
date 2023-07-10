@@ -74,12 +74,17 @@ st.session_state.setdefault("replies", [])
 
 st.session_state.setdefault("usedb", True)
 
+st.session_state.setdefault("query_type", "Chat")
+
 
 def ask_bot(query):
     clean_query = query
-    # response = llm(clean_query)
-    output = qa({"query": clean_query})
-    response = output["result"]
+
+    if st.session_state["query_type"] == "Chat":
+        response = llm(clean_query)
+    else:
+        output = qa({"query": clean_query})
+        response = output["result"]
     return response
 
 
@@ -117,6 +122,13 @@ with st.sidebar:
         """
         We are using Vertex AI to perform some Q&A on Alphabet Q1 2023 10-Q PDF using the text bison LLM.
         """
+
+        # Dropdown to select task
+        st.selectbox(
+            ' ',
+            ('Chat', 'Q&A'),
+            key="query_type"
+        )
 
 # st.write("### Infinite AI: Financial Chatbot Experiment")
 
