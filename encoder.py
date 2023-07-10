@@ -26,6 +26,7 @@ print(f"Vertex AI SDK version: {aiplatform.__version__}")
 
 demo_data = [
     {"title": "Alphabet Q1 2023 10-Q", "path": "./data/20230426-alphabet-10q.pdf"}
+    {"title": "Apple 10-K", "path": "./data/Apple-10K.pdf"}
 ]
 
 # Change it to your project id
@@ -132,6 +133,6 @@ qa = RetrievalQA.from_chain_type(
 )
 
 # Sample Query
-query = "What is the address of Alphabet Inc?"
+query = "What is the address of Apple Inc?"
 result = qa({"query": query})
 print(result["result"])

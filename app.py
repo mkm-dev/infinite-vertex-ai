@@ -23,7 +23,7 @@ st.set_page_config(
     page_title="Infinite AI: Financial Chatbot Experiment", layout="wide")
 
 demo_data = [
-    {"title": "Alphabet Q1 2023 10-Q", "link": "#"}
+    {"title": "Apple 10-K", "link": "#"}
 ]
 # Change it to your project id
 aiplatform.init(project="vertex-ai-try")
@@ -120,7 +120,7 @@ with st.sidebar:
 
     with st.container():
         """
-        We are using Vertex AI to perform some Q&A on Alphabet Q1 2023 10-Q PDF using the text bison LLM.
+        We are using Vertex AI to perform some Q&A on Apple 10-K PDF using the text bison LLM.
         """
 
         # Dropdown to select task
