@@ -1,4 +1,6 @@
 import time
+from typing import List
+from pydantic import BaseModel
 
 import langchain
 import os
@@ -38,8 +40,53 @@ llm = VertexAI(
     verbose=True,
 )
 
-# Embedding
-embeddings = VertexAIEmbeddings()
+use_custom_embeddings = True
+
+
+# Custom Embedding with rate limiting
+def rate_limit(max_per_minute):
+    period = 60 / max_per_minute
+    print("Rate limit")
+    while True:
+        before = time.time()
+        yield
+        after = time.time()
+        elapsed = after - before
+        sleep_time = max(0, period - elapsed)
+        if sleep_time > 0:
+            print(".", end="")
+            time.sleep(sleep_time)
+
+
+class CustomVertexAIEmbeddings(VertexAIEmbeddings, BaseModel):
+    requests_per_minute: int
+    num_instances_per_batch: int
+
+    def embed_documents(self, texts: List[str]):
+        limiter = rate_limit(self.requests_per_minute)
+        results = []
+        docs = list(texts)
+
+        while docs:
+            head, docs = (
+                docs[: self.num_instances_per_batch],
+                docs[self.num_instances_per_batch:],
+            )
+            chunk = self.client.get_embeddings(head)
+            results.extend(chunk)
+            next(limiter)
+
+        return [r.values for r in results]
+
+
+# Embeddings
+if use_custom_embeddings:
+    embeddings = CustomVertexAIEmbeddings(
+        requests_per_minute=60,
+        num_instances_per_batch=5,
+    )
+else:
+    embeddings = VertexAIEmbeddings()
 
 """
 # Test embeddings
@@ -50,17 +97,17 @@ print(f"Looks like this: {text_embedding[:5]}...")
 """
 
 # Chroma DB
+CHROMADB_PATH = ".chromadb/"
+
 # If db is already there load from files else create from docs
-if os.path.exists(".chromadb/chroma-embeddings.parquet"):
-    db = Chroma(persist_directory=".chromadb/",
+if os.path.exists(CHROMADB_PATH + "chroma-embeddings.parquet"):
+    db = Chroma(persist_directory=CHROMADB_PATH,
                 embedding_function=embeddings)
     print("Loading db from files")
 else:
-    print("Creating db from docs")
+    print("Creating db from docs: This may take a while ...")
 
-    file = demo_data[0]
-
-    loader = PyPDFLoader(file["path"])
+    loader = PyPDFLoader(demo_data[0]["path"])
     documents = loader.load()
 
     # Split the documents into chunks
@@ -72,7 +119,7 @@ else:
     # print(docs[0])
 
     db = Chroma.from_documents(
-        docs[:50], embeddings, persist_directory=".chromadb/")
+        docs[:30], embeddings, persist_directory=CHROMADB_PATH)
     db.persist()
 
 retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": 2})
