@@ -1,4 +1,4 @@
-# infinite-vertex-ai
+# Infinite AI
 
 ## Streamlit app for Financial Chatbot
 
@@ -6,7 +6,11 @@ WIP
 
 ### Getting Started
 
-This app uses Google Vertex AI using LangChain. The UI is built with Streamlit. In order to start you need to provide it with a path to the service account key for your GCP project.
+This app uses Google Vertex AI using LangChain. The UI is built with Streamlit. 
+
+1. Setup GCP credentials
+2. Run the encoder.py
+3. Start the app.py using Streamlit
 
 Create or Copy your service account JSON file into the project directory.
 Store the path to the JSON file as the  **GOOGLE_APPLICATION_CREDENTIALS** environment variable before starting this application.
